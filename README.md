@@ -1,2 +1,2 @@
 # Zenith-Support
-na solución integral para empresas que buscan profesionalizar su atención al cliente. Este sistema elimina el uso de correos desordenados, convirtiendo cada solicitud en un ticket rastreable.
+SaaS diseñado para optimizar el flujo de trabajo de equipos de soporte técnico. La plataforma permite la centralización de tickets, comunicación en tiempo real con el cliente y gestión de tiempos de respuesta (SLA).
