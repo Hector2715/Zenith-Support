@@ -71,12 +71,17 @@ require __DIR__.'/auth.php';
 
 // RUTAS PROTEGIDAS
 Route::middleware(['auth'])->group(function () {
+    
     // Listado de planes
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
     Route::get('/checkout/{plan:slug}', [PlanController::class, 'checkout'])->name('checkout');
 
     // Gestión de equipos
     Route::get('/equipos/nuevo', [EquipoController::class, 'create'])->name('equipos.create');
+    Route::get('/gestion-equipos', [EquipoController::class, 'index'])->name('equipos.index');
+    Route::get('/equipos/{equipo}/editar', [EquipoController::class, 'edit'])->name('equipos.edit');
+    Route::put('/equipos/{equipo}', [EquipoController::class, 'update'])->name('equipos.update');
+    Route::delete('/equipos/{equipo}', [EquipoController::class, 'destroy'])->name('equipos.destroy');
     Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
     Route::patch('/equipos/{equipo}/entregar', [EquipoController::class, 'updateStatus'])->name('equipos.entregar');
 
