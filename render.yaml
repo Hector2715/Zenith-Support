@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: zunith-support
+    env: php
+    plan: free
+    buildCommand: composer install --no-dev && php artisan optimize
+    startCommand: vendor/bin/heroku-php-apache2 public/
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
+
+databases:
+  - name: zunith_db
+    databaseName: zunith_support
+    user: hector
+    plan: free

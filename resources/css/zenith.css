@@ -16,7 +16,16 @@
 }
 
 /* Estilo de la barra de progreso Zenith */
-
+html [wire\:progress-bar], 
+.livewire-progress-bar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 4px !important;
+    background-color: #41bcb0 !important; /* Tu color Zenith */
+    z-index: 100000 !important;
+    display: block !important;
+}
 
 /* Tarjetas de Métricas */
 .card-stat {
