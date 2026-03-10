@@ -1,7 +1,7 @@
 services:
   - type: web
     name: zunith-support
-    env: php
+    runtime: php
     plan: free
     buildCommand: composer install --no-dev && php artisan optimize
     startCommand: vendor/bin/heroku-php-apache2 public/
