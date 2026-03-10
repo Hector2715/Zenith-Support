@@ -1,7 +1,6 @@
 services:
   - type: web
     name: zunith-support
-    runtime: php
     plan: free
     buildCommand: composer install --no-dev && php artisan optimize
     startCommand: vendor/bin/heroku-php-apache2 public/
@@ -14,6 +13,8 @@ services:
         value: false
       - key: LOG_CHANNEL
         value: stderr
+      - key: DB_CONNECTION
+        value: mysql
 
 databases:
   - name: zunith_db
