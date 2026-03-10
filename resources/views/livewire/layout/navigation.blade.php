@@ -16,13 +16,25 @@ new class extends Component
     }
 }; ?>
 
+@php
+    // Definimos los IDs desde la configuración para que funcione en producción
+    $proId = config('services.stripe.pro_price_id');
+    $basicId = config('services.stripe.basic_price_id');
+    $user = auth()->user();
+@endphp
+
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate>
-                        <x-application-logo class="block h-20 w-auto fill-current text-gray-800" />
+                <div class="shrink-0 flex items-center space-x-3">
+                    <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-2">
+                        @if($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" class="block h-10 w-auto rounded-lg shadow-sm">
+                        @else
+                            <x-application-logo class="block h-10 w-auto fill-current text-indigo-600" />
+                        @endif
+
                     </a>
                 </div>
 
@@ -47,22 +59,35 @@ new class extends Component
                             
                             <div class="flex items-center">
                                 <div class="h-8 w-8 rounded-full overflow-hidden border border-gray-200 me-2 shadow-sm">
-                                    @if(auth()->user()->avatar)
-                                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" class="h-full w-full object-cover">
+                                    @if($user->avatar)
+                                        <img src="{{ asset('storage/' . $user->avatar) }}" class="h-full w-full object-cover">
                                     @else
                                         <div class="flex items-center justify-center h-full bg-indigo-500 text-white font-bold text-xs uppercase">
-                                            {{ substr(auth()->user()->name, 0, 1) }}
+                                            {{ substr($user->name, 0, 1) }}
                                         </div>
                                     @endif
                                 </div>
 
-                                <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                                
-                                @if(auth()->user()->subscribed())
-                                    <span class="ms-2 px-2 py-0.5 text-[10px] bg-amber-100 text-amber-700 font-black rounded-full border border-amber-200 uppercase tracking-tighter">
-                                        PRO
-                                    </span>
-                                @endif
+                                <div x-data="{{ json_encode(['name' => $user->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name">
+                                </div>
+
+                                {{-- LÓGICA DE BADGES POR NIVELES --}}
+                                    @if($user->subscribed('default') && $proId && $user->subscribedToPrice($proId, 'default'))
+                                        {{-- NIVEL 3: PRO --}}
+                                        <span class="ms-2 px-2 py-0.5 text-[10px] bg-amber-100 text-amber-700 font-black rounded-full border border-amber-200 uppercase tracking-tighter shadow-sm">
+                                            PRO
+                                        </span>
+                                    @elseif($user->subscribed('default') && $basicId && $user->subscribedToPrice($basicId, 'default'))
+                                        {{-- NIVEL 2: BASIC --}}
+                                        <span class="ms-2 px-2 py-0.5 text-[10px] bg-green-100 text-green-700 font-black rounded-full border border-green-200 uppercase tracking-tighter shadow-sm">
+                                            BASIC
+                                        </span>
+                                    @else
+                                        {{-- NIVEL 1: ESTÁNDAR (POR DEFECTO) --}}
+                                        <span class="ms-2 px-2 py-0.5 text-[10px] bg-gray-100 text-gray-500 font-bold rounded-full border border-gray-200 uppercase tracking-tighter">
+                                            ESTÁNDAR
+                                        </span>
+                                    @endif
                             </div>
 
                             <div class="ms-1">
@@ -108,17 +133,17 @@ new class extends Component
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4 flex items-center">
                 <div class="h-10 w-10 rounded-full overflow-hidden border border-gray-300 me-3">
-                    @if(auth()->user()->avatar)
-                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" class="h-full w-full object-cover">
+                    @if($user->avatar)
+                        <img src="{{ asset('storage/' . $user->avatar) }}" class="h-full w-full object-cover">
                     @else
                         <div class="flex items-center justify-center h-full bg-indigo-500 text-white font-bold">
-                            {{ substr(auth()->user()->name, 0, 1) }}
+                            {{ substr($user->name, 0, 1) }}
                         </div>
                     @endif
                 </div>
                 <div>
-                    <div class="font-medium text-base text-gray-800" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                    <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
+                    <div class="font-medium text-base text-gray-800" x-data="{{ json_encode(['name' => $user->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                    <div class="font-medium text-sm text-gray-500">{{ $user->email }}</div>
                 </div>
             </div>
 

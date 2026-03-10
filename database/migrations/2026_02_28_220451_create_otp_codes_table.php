@@ -9,10 +9,13 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+public function up()
     {
         Schema::create('otp_codes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('code');
+            $table->timestamp('expires_at');
             $table->timestamps();
         });
     }

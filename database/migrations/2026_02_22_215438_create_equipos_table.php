@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('equipos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('modelo');
             $table->enum('estado', ['ingresado', 'reparando', 'entregado'])->default('ingresado');
             $table->timestamp('fecha_entrega')->nullable(); // Esto alimentará el gráfico

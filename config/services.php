@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'model' => App\Models\User::class,
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook' => [
+            'secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
+        ],
+        'pro_price_id' => env('STRIPE_PRO_PRICE_ID'),
+        'basic_price_id' => env('STRIPE_BASIC_PRICE_ID'),
+    ],
+
 ];

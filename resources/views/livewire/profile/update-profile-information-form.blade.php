@@ -12,6 +12,7 @@ new class extends Component
     use WithFileUploads; // Habilitamos la subida de archivos
 
     public string $name = '';
+    public string $nombre_taller = '';
     public string $email = '';
     public $avatar; // Nueva propiedad para la imagen
 
@@ -19,9 +20,11 @@ new class extends Component
      * Mount the component.
      */
     public function mount(): void
-    {
+    {   
+        $user = Auth::user();
         $this->name = Auth::user()->name;
         $this->email = Auth::user()->email;
+        $this->nombre_taller = Auth::user()->nombre_taller ?? '';
     }
 
     /**
@@ -33,23 +36,30 @@ new class extends Component
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
+            'nombre_taller' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
-            'avatar' => ['nullable', 'image', 'max:2048'], // Validación de imagen (2MB máx)
+            'avatar' => ['nullable', 'image', 'max:2048'], 
         ]);
 
-        $user->fill($validated);
-
+        $user->forceFill([
+                'name' => $this->name,
+                'email' => $this->email,
+                'nombre_taller' => $this->nombre_taller,
+            ]);
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
-        // Lógica para guardar el avatar si se subió uno nuevo
+        // Guardar el avatar
         if ($this->avatar) {
             $path = $this->avatar->store('avatars', 'public');
             $user->avatar = $path;
         }
 
         $user->save();
+
+        // IMPORTANTE: Limpiamos la propiedad temporal para refrescar la vista real
+        $this->reset('avatar');
 
         $this->dispatch('profile-updated', name: $user->name);
     }
@@ -78,83 +88,60 @@ new class extends Component
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Actualice la información del perfil y la dirección de correo electrónico de su cuenta.") }}
+            {{ __("Actualice la información de su taller y su cuenta de usuario.") }}
         </p>
     </header>
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         <div class="flex items-center gap-6">
-            <div class="shrink-0">
+            <div class="shrink-0 relative">
                 @if ($avatar)
-                    <img class="h-16 w-16 object-cover rounded-full" src="{{ $avatar->temporaryUrl() }}" alt="Preview">
+                    <img class="h-16 w-16 object-cover rounded-full border-2 border-indigo-500" src="{{ $avatar->temporaryUrl() }}">
                 @elseif (auth()->user()->avatar)
-                    <img class="h-16 w-16 object-cover rounded-full" src="{{ asset('storage/' . auth()->user()->avatar) }}" alt="Avatar">
+                    <img class="h-16 w-16 object-cover rounded-full" src="{{ asset('storage/' . auth()->user()->avatar) }}">
                 @else
                     <div class="h-16 w-16 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xl font-bold">
                         {{ substr(auth()->user()->name, 0, 1) }}
                     </div>
                 @endif
+
+                <div wire:loading wire:target="avatar" class="absolute inset-0 bg-black bg-opacity-25 rounded-full flex items-center justify-center">
+                    <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
             </div>
             
-            <div>
-                <x-input-label for="avatar" :value="__('Foto de Perfil')" />
-                
-                @if ($avatar)
-                    <div class="mt-2 mb-4">
-                        <p class="text-xs text-gray-500 mb-1">Vista previa:</p>
-                        <img src="{{ $avatar->temporaryUrl() }}" class="h-20 w-20 rounded-full object-cover border-2 border-indigo-500 shadow-sm">
-                    </div>
-                @elseif (auth()->user()->avatar_url) {{-- Asumiendo que guardas la URL --}}
-                    <div class="mt-2 mb-4">
-                        <img src="{{ auth()->user()->avatar_url }}" class="h-20 w-20 rounded-full object-cover">
-                    </div>
-                @endif
-
+            <div class="flex-1">
+                <x-input-label for="avatar" :value="__('Logo del Taller')" />
                 <input wire:model="avatar" type="file" id="avatar" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-                
                 <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
-                
-                <div wire:loading wire:target="avatar" class="text-sm text-gray-500 mt-2">
-                    <span class="animate-pulse">⏳</span> {{ __('Subiendo...') }}
-                </div>
             </div>
         </div>
 
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
-
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        {{ __('Su dirección de correo electrónico no está verificada.') }}
-
-                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                            {{ __('Se ha enviado un nuevo enlace de verificación a su dirección de correo electrónico.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
+            <x-input-label for="nombre_taller" :value="__('Nombre de tu Taller')" />
+            <x-text-input wire:model="nombre_taller" id="nombre_taller" type="text" class="mt-1 block w-full" required />
+            <x-input-error class="mt-2" :messages="$errors->get('nombre_taller')" />
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Guardar') }}</x-primary-button>
+            <x-primary-button wire:loading.attr="disabled" wire:target="updateProfileInformation">
+                <span wire:loading.remove wire:target="updateProfileInformation">
+                    {{ __('Guardar cambios') }}
+                </span>
+                <span wire:loading wire:target="updateProfileInformation" class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {{ __('Guardando...') }}
+                </span>
+            </x-primary-button>
 
             <x-action-message class="me-3" on="profile-updated">
-                {{ __('Guardado.') }}
+                {{ __('¡Guardado con éxito!') }}
             </x-action-message>
         </div>
     </form>

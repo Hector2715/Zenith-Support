@@ -1,1 +1,1 @@
-<img src="{{ asset('images/logo-zenith.png') }}" {{ $attributes->merge(['class' => 'h-20 w-auto']) }} alt="Zenith Support Logo" >
+<img src="{{ asset('images/logo-zenith.png') }}" {{ $attributes->merge(['class' => 'h-16 w-auto']) }} alt="Zenith Support Logo" >

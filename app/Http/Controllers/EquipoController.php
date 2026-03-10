@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Equipo;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EquipoController extends Controller
 {
@@ -13,44 +14,73 @@ class EquipoController extends Controller
         return view('equipos.create');
     }
 
-    // Lista completa para Gestión
+    // Lista completa para Gestión (Privada)
     public function index()
     {
-        $equipos = Equipo::orderBy('created_at', 'desc')->get();
+        $equipos = auth()->user()->equipos()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('equipos.index', compact('equipos'));
     }
 
-    // Formulario de edición
-    public function edit(Equipo $equipo)
+    // Formulario de edición (Privado)
+    public function edit($id)
     {
+        $equipo = auth()->user()->equipos()->find($id);
+
+        if (!$equipo) {
+            return redirect()->route('equipos.index')
+                ->with('error', 'El equipo solicitado no existe en sus registros.');
+        }
+
         return view('equipos.edit', compact('equipo'));
     }
 
-    // Guardar cambios
-    public function update(Request $request, Equipo $equipo)
+
+    // Guardar cambios (Privado)
+    public function update(Request $request, $id)
     {
+        $equipo = auth()->user()->equipos()->findOrFail($id);
+
+        if (!$equipo) {
+            return redirect()->route('equipos.index')
+                ->with('error', 'No se puede actualizar un equipo que no le pertenece.');
+        }
+
         $validated = $request->validate([
-            'modelo' => 'required|string|max:255',
-            'falla'  => 'required|string',
-            'costo'  => 'required|numeric|min:0',
-            'estado' => 'required|in:ingresado,entregado',
+            'name_client' => 'required|string|max:255',
+            'modelo'      => 'required|string|max:255',
+            'falla'       => 'required|string',
+            'costo'       => 'required|numeric|min:0',
+            'estado'      => 'required|in:ingresado,entregado',
         ]);
+
+        // Lógica de fecha de entrega para el gráfico
+        if ($validated['estado'] === 'entregado' && $equipo->estado !== 'entregado') {
+            $validated['fecha_entrega'] = now();
+        } elseif ($validated['estado'] === 'ingresado') {
+            $validated['fecha_entrega'] = null;
+        }
 
         $equipo->update($validated);
 
-        return redirect()->route('equipos.index')->with('status', 'Registro actualizado con éxito.');
+        return redirect()->route('equipos.index')->with('status', 'Registro actualizado con exito!');
     }
 
-    // Guarda el equipo en la base de datos
+    // Guarda el equipo vinculado al usuario
     public function store(Request $request)
     {
         $request->validate([
+            'name_client' => 'required|string|max:255',
             'modelo' => 'required|string|max:255',
             'falla'  => 'required|string',
-            'costo'  => 'required|numeric|min:0', // Validación de dinero
+            'costo'  => 'required|numeric|min:0',
         ]);
 
-        Equipo::create([
+        // Usamos la relación para asegurar el user_id
+        auth()->user()->equipos()->create([
+            'name_client' => $request->name_client,
             'modelo' => $request->modelo,
             'falla'  => $request->falla,
             'costo'  => $request->costo,
@@ -60,20 +90,35 @@ class EquipoController extends Controller
         return redirect()->route('dashboard')->with('status', 'Equipo ingresado con éxito.');
     }
 
-    public function updateStatus(Equipo $equipo)
+    // Botón rápido de entrega (Privado)
+    public function updateStatus($id)
     {
-        // Cambiamos el estado y actualizamos la fecha para el gráfico
+        $equipo = auth()->user()->equipos()->find($id);
+
+        if (!$equipo) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Operación no permitida.');
+        }
+
         $equipo->update([
             'estado' => 'entregado',
-            'fecha_entrega' => now() // Esto es lo que lee el gráfico
+            'fecha_entrega' => now()
         ]);
 
-        return redirect()->route('dashboard')->with('success', '¡Equipo entregado! El gráfico se ha actualizado.');
+        return redirect()->route('dashboard')->with('status', '¡Equipo entregado! El gráfico se ha actualizado.');
     }
 
-        // Eliminar registro
-    public function destroy(Equipo $equipo)
+
+    // Eliminar registro (Privado)
+    public function destroy($id)
     {
+        $equipo = auth()->user()->equipos()->find($id);
+
+        if (!$equipo) {
+            return redirect()->route('equipos.index')
+                ->with('error', 'No se encontró el registro para eliminar.');
+        }
+
         $equipo->delete();
         return redirect()->route('equipos.index')->with('status', 'Equipo eliminado del sistema.');
     }

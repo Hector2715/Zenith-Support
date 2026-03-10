@@ -10,8 +10,11 @@ class Equipo extends Model
      * Atributos que se pueden asignar de forma masiva.
      */
     protected $fillable = [
+        'user_id',
+        'name_client',
         'modelo',
         'estado',
+        'falla',
         'fecha_entrega',
         'costo',
     ];
@@ -23,5 +26,11 @@ class Equipo extends Model
      */
     protected $casts = [
         'fecha_entrega' => 'datetime',
+        'costo' => 'decimal:2',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

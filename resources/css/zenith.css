@@ -1,0 +1,154 @@
+/* Colores de Marca Zenith */
+:root {
+    --zenith-navy: #1e3d6c;
+    --zenith-teal: #41bcb0;
+}
+
+/* Botón Principal Zenith */
+.btn-zenith {
+    @apply inline-block w-full text-center bg-[#1e3d6c] hover:bg-[#41bcb0] text-white py-4 rounded-xl text-xs font-black transition-all shadow-lg uppercase tracking-[0.2em] active:scale-95;
+    font-style: normal !important; /* Forzamos a que sea recto */
+}
+
+.title-zenith {
+    @apply font-black text-2xl text-[#1e3d6c] leading-tight uppercase tracking-tighter;
+    font-style: normal;
+}
+
+/* Estilo de la barra de progreso Zenith */
+
+
+/* Tarjetas de Métricas */
+.card-stat {
+    @apply bg-white p-6 rounded-2xl shadow-md border-l-4 transition-transform hover:scale-[1.02];
+}
+
+.card-stat-title {
+    @apply text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1;
+}
+
+.card-stat-value {
+    @apply text-2xl font-black text-[#1e3d6c] tracking-tighter;
+}
+
+/* Cabeceras de Tabla */
+.table-zenith-head {
+    @apply px-6 py-4 text-[10px] font-black text-[#1e3d6c] uppercase tracking-widest bg-gray-50/50;
+}
+
+/* Badges de Estado */
+.badge-zenith {
+    @apply px-3 py-1 text-[9px] font-black rounded-full uppercase border tracking-tighter;
+}
+
+.badge-zenith-teal {
+    @apply bg-[#41bcb0]/10 text-[#41bcb0] border-[#41bcb0]/20;
+}
+
+.badge-zenith-amber {
+    @apply bg-amber-50 text-amber-600 border-amber-100;
+}
+
+/* resources/css/zenith-style.css */
+
+/* Tarjeta principal de formulario */
+.card-zenith-form {
+    @apply bg-white overflow-hidden shadow-2xl sm:rounded-xl border-t-4 border-[#41bcb0];
+}
+
+/* Inputs de texto estilo Zenith */
+.input-zenith {
+    @apply mt-1 block w-full uppercase border-[#1e3d6c]/10 focus:border-[#41bcb0] focus:ring-[#41bcb0] rounded-lg shadow-sm font-bold text-[#1e3d6c];
+    font-style: normal !important;
+}
+
+/* Área de texto (Falla) */
+.textarea-zenith {
+    @apply mt-1 block w-full border-[#1e3d6c]/10 focus:border-[#41bcb0] focus:ring-[#41bcb0] rounded-lg shadow-sm bg-gray-50/50 text-xs font-bold uppercase p-4;
+    font-style: normal !important;
+}
+
+/* Contenedor de presupuesto */
+.budget-container-zenith {
+    @apply bg-[#1e3d6c]/5 p-6 rounded-2xl border border-dashed border-[#1e3d6c]/20;
+}
+
+.input-budget-zenith {
+    @apply pl-8 block w-full border-none focus:ring-2 focus:ring-[#41bcb0] rounded-xl shadow-inner bg-white text-lg font-black text-[#1e3d6c] tracking-tighter;
+}
+
+/* Etiquetas de formulario */
+.label-zenith {
+    @apply text-[#1e3d6c] font-black uppercase text-[10px] tracking-widest mb-2 block;
+    font-style: normal !important;
+}
+
+/* Banner Superior */
+.banner-zenith {
+    @apply bg-gradient-to-r from-[#1e3d6c] to-[#2a528a] p-8 rounded-2xl shadow-xl relative;
+}
+
+/* Alerta de éxito */
+.alert-zenith {
+    @apply bg-emerald-50 border-l-4 border-[#41bcb0] text-emerald-700 p-4 rounded-r-xl font-bold uppercase text-[10px] tracking-widest flex items-center gap-3;
+}
+
+/* El nuevo botón de Reporte */
+.btn-reporte-grande {
+    @apply bg-[#1e3d6c] text-white py-5 px-10 rounded-2xl shadow-2xl hover:bg-[#41bcb0] hover:-translate-y-1 transition-all duration-300;
+}
+
+/* Estilo base para todos los iconos de Bootstrap */
+i[class^="bi-"], i[class*=" bi-"] {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Iconos dentro de las tarjetas de estadísticas */
+.card-stat i {
+    @apply text-2xl mb-2 opacity-80;
+}
+
+/* Contenedor de iconos de acción */
+.action-container i {
+    @apply text-lg p-2 rounded-lg transition-all duration-200 inline-flex items-center justify-center;
+}
+
+/* Estilos individuales por función */
+.bi-printer-fill {
+    @apply text-[#41bcb0] hover:bg-[#41bcb0]/10 hover:scale-110;
+}
+
+.bi-pencil-square {
+    @apply text-[#1e3d6c] hover:bg-[#1e3d6c]/10 hover:scale-110;
+}
+
+.bi-trash3-fill {
+    @apply text-red-500 hover:bg-red-50 hover:scale-110;
+}
+
+/* Si quieres que se vean más "Zunith", podemos darles un fondo suave de base */
+.action-icon-bg {
+    @apply bg-gray-50 border border-gray-100 shadow-sm;
+}
+
+
+/*Footer */
+
+.footer-zenith {
+    @apply bg-white border-t border-gray-100 py-8 mt-12;
+}
+
+.footer-link {
+    @apply text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#41bcb0] transition-colors;
+}
+
+.card-zenith-form h3 {
+    @apply border-b-2 border-[#41bcb0]/20 pb-2 inline-block;
+}
+
+.card-zenith-form p {
+    @apply text-gray-500 text-justify;
+}

@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -20,10 +21,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'nombre_taller',
         'email',
         'password',
         'otp_code',        
         'otp_expires_at',
+        'avatar',
     ];
 
     /**
@@ -47,5 +50,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function equipos(): HasMany
+    {
+        return $this->hasMany(Equipo::class);
     }
 }

@@ -10,9 +10,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        // Excepción de CSRF para los Webhooks de Stripe
+        $middleware->validateCsrfTokens(except: [
+            'stripe/*', 
+            'webhook/stripe', // Por si acaso usas la ruta por defecto de Cashier
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
