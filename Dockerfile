@@ -1,34 +1,32 @@
 FROM php:8.2-apache
 
-# Instalar extensiones necesarias (añadimos más para evitar el error 2)
+# Instalar extensiones y Node.js
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
+    libpq-dev libzip-dev libpng-dev libonig-dev libxml2-dev zip unzip curl \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
 
-# Habilitar mod_rewrite
+# Instalar Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
+
 RUN a2enmod rewrite
 
-# Configurar Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# Copiar el proyecto
 COPY . /var/www/html
-
-# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Comando de instalación mejorado (añadimos --ignore-platform-reqs)
+# Instalar PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Permisos
+# COMPILAR ASSETS (Vite)
+RUN npm install
+RUN npm run build
+
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
+
+CMD sh -c "php artisan migrate --force && apache2-foreground"
