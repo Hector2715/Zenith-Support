@@ -16,12 +16,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {   
         $this->call(PlanSeeder::class);
-        // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('123456'),
-        ]);
+        \App\Models\User::updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('123456'),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

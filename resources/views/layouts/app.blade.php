@@ -100,5 +100,4 @@
     document.addEventListener('livewire:navigated', zenithSmartNavigate);
 </script>
 </body>
-    </body>
 </html>
